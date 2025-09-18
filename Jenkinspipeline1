@@ -8,7 +8,7 @@ pipeline {
   stages {
     stage('Checkout Code') {
       steps {
-        git branch: 'main', url: 'https://github.com/Venkiemc/emc-nodejs-app.git'
+        git branch: 'main', url: 'https://github.com/AbishekM001/week12-CIproject.git'
       }
     }
     stage('Build Docker Image') {
