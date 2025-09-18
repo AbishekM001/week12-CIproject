@@ -4,29 +4,29 @@ pipeline {
   environment {
     IMAGE_NAME = 'emc-nodejs-app:latest'
     DOCKERHUB_CREDENTIALS = 'dockerhub-token'
-    DOCKERHUB_REPO = 'venkiemc/emc-nodejs-app'
+    DOCKERHUB_REPO = 'abishekm001/emc-nodejs-app'  // use lowercase for DockerHub repo names
   }
 
   stages {
     stage('Code Checkout') {
       steps {
-        git branch: 'main', url: 'https://github.com/Venkiemc/emc-nodejs-app.git'
+        git branch: 'main', url: 'https://github.com/AbishekM001/week12-CIproject.git'
       }
     }
 
     stage('Build Docker Image') {
       steps {
-        bat "docker build -t %IMAGE_NAME% ."
+        sh "docker build -t $IMAGE_NAME ."
       }
     }
 
     stage('Docker Login and Push') {
       steps {
         withCredentials([usernamePassword(credentialsId: DOCKERHUB_CREDENTIALS, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-          bat """
-            docker login -u %DOCKER_USER% -p %DOCKER_PASS%
-            docker tag %IMAGE_NAME% %DOCKERHUB_REPO%:latest
-            docker push %DOCKERHUB_REPO%:latest
+          sh """
+            echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+            docker tag $IMAGE_NAME $DOCKERHUB_REPO:latest
+            docker push $DOCKERHUB_REPO:latest
           """
         }
       }
@@ -34,14 +34,15 @@ pipeline {
 
     stage('Pull Docker Image') {
       steps {
-        bat "docker pull %DOCKERHUB_REPO%:latest"
+        sh "docker pull $DOCKERHUB_REPO:latest"
       }
     }
 
     stage('Deploy Docker Container') {
       steps {
-        bat 'docker run -d -p 80:3000 --name emc-node-container %DOCKERHUB_REPO%:latest'
+        sh "docker run -d -p 80:3000 --name emc-node-container $DOCKERHUB_REPO:latest"
       }
     }
   }
 }
+
